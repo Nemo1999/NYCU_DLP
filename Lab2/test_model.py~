@@ -1,0 +1,2 @@
+from main import hp
+from nn_util import load_and_test_model
