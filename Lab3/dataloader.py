@@ -43,28 +43,28 @@ class RetinopathyLoader(data.Dataset):
         """
            step1. Get the image path from 'self.img_name' and load it.
                   hint : path = root + self.img_name[index] + '.jpeg'
-           
+
            step2. Get the ground truth label from self.label
-                     
-           step3. Transform the .jpeg rgb images during the training phase, such as resizing, random flipping, 
-                  rotation, cropping, normalization etc. But at the beginning, I suggest you follow the hints. 
-                       
-                  In the testing phase, if you have a normalization process during the training phase, you only need 
-                  to normalize the data. 
-                  
+
+           step3. Transform the .jpeg rgb images during the training phase, such as resizing, random flipping,
+                  rotation, cropping, normalization etc. But at the beginning, I suggest you follow the hints.
+
+                  In the testing phase, if you have a normalization process during the training phase, you only need
+                  to normalize the data.
+
                   hints : Convert the pixel value to [0, 1]
                           Transpose the image shape from [H, W, C] to [C, H, W]
-                         
+
             step4. Return processed image and label
         """
         img_path = self.img_name[index]
         label = self.label[index]
-        
+
         img = mpimg.imread(join(self.root, img_path)+'.jpeg')
         #print(f'pixel_max = {np.max(img)}')
-        
+
         img_t = torch.tensor(img)
-        # convert from uint8 to float 
+        # convert from uint8 to float
         img_t = img_t.type(torch.FloatTensor)
         # change the range to [0,1]
         img_t /= 255.0
@@ -73,7 +73,7 @@ class RetinopathyLoader(data.Dataset):
         # normalize image
         if self.transform:
             img_t = self.transform(img_t)
-                
+
         return img_t , label
 
 def get_loader(hp):

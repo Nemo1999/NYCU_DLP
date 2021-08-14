@@ -188,7 +188,7 @@ if __name__ == '__main__':
     }
 
     model, hist = train_with_hp(hp,save_result=True)
-
+    
     
     hp = {
         'model':'ResNet50', # or  'ResNet50'
@@ -197,7 +197,7 @@ if __name__ == '__main__':
         'pretrain':True,
         'feature_extracting':False,
         'bs':4,
-        'epochs':5
+        'epochs':10
     }
 
     model, hist = train_with_hp(hp,save_result=True)
