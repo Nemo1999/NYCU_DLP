@@ -25,7 +25,8 @@ class EncoderRNN(nn.Module):
         eps = torch.randn_like(std)
         return eps*std + mu
 
-    def forward(self, input, hidden, cell, condition):
+    def forward(self, mode, input, hidden, cell, condition):
+        # `mode` can be either 'train' or 'eval'
         # `input` should have shape (seq_len, batch_size , input_dim)
         # which is  (seq_len , 1, 1)
 
@@ -51,10 +52,12 @@ class EncoderRNN(nn.Module):
 
         z = self.reparametrize(mu, log_var)
 
-        kl_loss = self.regularization_loss(mu, log_var)
-
-        return kl_loss, z
-
+        if mode == 'train':
+            kl_loss = self.regularization_loss(mu, log_var)
+            return kl_loss, z
+        else:
+            assert mode == 'eval', 'unknown mode for encoder'
+            return z
     def regularization_loss(self, mu, log_var):
         kl_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu**2 - log_var.exp(), dim=1), dim=0)
         return kl_loss
@@ -82,6 +85,7 @@ class DecoderRNN(nn.Module):
 
         self.embedding_cond = nn.Embedding(num_cond, tense_size)
         self.criterion = nn.NLLLoss()
+        self.decoder_input0 = torch.tensor([[[26]]], device=device)
     def one_step(self, input, hidden, cell):
         # input should have shape (1, 1, 1)
         # hidden, cell both should have shape (1, 1, latent_size + tense_size)
@@ -97,8 +101,14 @@ class DecoderRNN(nn.Module):
 
         return output, hidden_n , cell_n
 
-    def forward(self, hidden, cell, condition, target,
+    def forward(self, mode,  hidden, cell, condition, target=None,
                 use_teacher_forcing=True):
+        # 'mode' should be either 'train' or 'eval'
+        # In 'train' mode, 'target' must be provided,
+        # and only 'rec_loss' is returned
+        # In 'eval' mode, a generated code sequence is returned (excluding EOS)
+
+
         # hidden, cell  should have shape (1, 1, latent_size)
         # condition should have shape (1, 1, 1)
         # target should have shape (seq_len, 1, 1)
@@ -110,31 +120,58 @@ class DecoderRNN(nn.Module):
         hidden_cond = torch.cat([hidden, embedded_cond], -1)
         cell_cond = torch.cat([cell, embedded_cond], -1)
 
-        target_length = target.shape[0]
-        # start of sequence
-        decoder_input = torch.tensor([[[26]]], device=device)
+        if mode == 'train':
+            assert target is not None, 'in train mode, target must be provided'
+            target_length = target.shape[0]
+            # start of sequence
+            decoder_input = self.decoder_input0
 
-        h = hidden_cond
-        c = cell_cond
-        rc_loss = 0 # reconstruction loss
+            h = hidden_cond
+            c = cell_cond
+            rc_loss = 0 # reconstruction loss
 
-        if use_teacher_forcing:
-            for di in range(target_length):
-                decoder_output, h, c = self.one_step(decoder_input, h, c)
+            if use_teacher_forcing:
+                for di in range(target_length):
+                    decoder_output, h, c = self.one_step(decoder_input, h, c)
 
-                rc_loss += self.criterion(decoder_output,
-                                            target[di].view(1,))
-                decoder_input = target[di, :, :]
+                    rc_loss += self.criterion(decoder_output,
+                                              target[di].view(1,))
+                    decoder_input = target[di, :, :]
+            else:
+                for di in range(target_length):
+                    decoder_output, h, c = self.one_step(decoder_input,
+                                                         h, c)
+
+                    rc_loss += self.criterion(decoder_output,
+                                              target[di].view(1))
+                    topv, topi = decoder_output.topk(1)
+                    decoder_input = topi.detach().view(1, 1, 1)
+
+            return rc_loss
         else:
-            for di in range(target_length):
-                decoder_output, h, c = self.one_step(decoder_input, h, c)
+            assert mode == 'eval', "unknown mode for decoder"
+            max_length = 20
+            # start of sequence
+            decoder_input = self.decoder_input0
 
-                rc_loss += self.criterion(decoder_output,
-                                            target[di].view(1,2))
+            h = hidden_cond
+            c = cell_cond
+            result = []
+            for i in range(max_length):
+
+                decoder_output, h, c = self.one_step(decoder_input, h, c)
                 topv, topi = decoder_output.topk(1)
+
+                print(decoder_output)
+                print(topi)
+                print(topi.item())
+                char_code = topi.detach().item()
+                if char_code == 27:  # End of Sequence
+                    break
+                result.append(char_code)
                 decoder_input = topi.detach().view(1, 1, 1)
 
-        return rc_loss
+            return result
 
     def initHidden(self):
         return torch.zeros(1, 1, self.latent_size, device=device)
@@ -154,10 +191,10 @@ if __name__ == '__main__':
         t = t.to(device)
         h0 = enc.initHidden()
         c0 = enc.initCell()
-        kl_loss, code = enc(w, h0, c0, t)
+        kl_loss, code = enc('train', w, h0, c0, t)
         print(kl_loss)
         h0 = dec.initHidden()
-        c0 = code.view(1,1,-1)
-        rc_loss = dec(h0, c0, t, w)
+        c0 = code.view(1, 1, -1)
+        rc_loss = dec('train', h0, c0, t, w)
         print(rc_loss)
         break
