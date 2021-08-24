@@ -61,6 +61,7 @@ class Discriminator(nn.Module):
     def __init__(self, ndf, nc=24):
         super(Discriminator, self).__init__()
         self.ndf = ndf
+<<<<<<< HEAD
         self.embbed_cond = nn.Linear(nc, nc, bias=False)
         self.main = nn.Sequential(
             # input is (nchannel) x 64 x 64
@@ -68,21 +69,36 @@ class Discriminator(nn.Module):
             nn.Conv2d(3, ndf, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Dropout(p=0.2),
+=======
+        self.embbed_cond = nn.Linear(nc, 64*64, bias=False)
+        self.main = nn.Sequential(
+            # input is (nchannel+1) x 64 x 64
+            # the extra dimension is for condition
+            nn.Conv2d(3+1, ndf, 4, 2, 1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             # state size. (ndf) x 32 x 32
             nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 2),
             nn.LeakyReLU(0.2, inplace=True),
+<<<<<<< HEAD
             nn.Dropout(p=0.2),
+=======
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             # state size. (ndf*2) x 16 x 16
             nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 4),
             nn.LeakyReLU(0.2, inplace=True),
+<<<<<<< HEAD
             nn.Dropout(p=0.2),
+=======
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             # state size. (ndf*4) x 8 x 8
             nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
             nn.BatchNorm2d(ndf * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
+<<<<<<< HEAD
             # nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
             nn.Conv2d(ndf * 8, nc, 4, 1, 0, bias=False),
             nn.LeakyReLU(0.2, inplace=True)
@@ -96,3 +112,13 @@ class Discriminator(nn.Module):
         out = self.final(h).view(-1,)
         out += torch.sum(h * c, dim=1, keepdim=False)
         return self.sigmoid(out)
+=======
+            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, img, c):
+        c = self.embbed_cond(c).view(-1, 1, 64, 64)
+        input = torch.cat([img, c], 1)
+        return self.main(input)
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa

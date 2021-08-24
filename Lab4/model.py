@@ -77,7 +77,11 @@ class DecoderRNN(nn.Module):
         self.tense_size = tense_size
 
         self.embedding_in = nn.Embedding(num_char, num_char)
+<<<<<<< HEAD
         self.lstm = nn.LSTM(num_char, latent_size + tense_size)
+=======
+        self.lstm = nn.LSTM(num_char , latent_size + tense_size)
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         self.out = nn.Sequential(
             nn.Linear(latent_size + tense_size, num_char),
             nn.LogSoftmax(dim=1)
@@ -113,7 +117,11 @@ class DecoderRNN(nn.Module):
         # condition should have shape (1, 1, 1)
         # target should have shape (seq_len, 1, 1)
         # and target should be append with EOS token ('$')
+<<<<<<< HEAD
         # print(condition)
+=======
+
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         embedded_cond = self.embedding_cond(condition)
         embedded_cond = embedded_cond.view(1, 1, -1)
 
@@ -162,10 +170,17 @@ class DecoderRNN(nn.Module):
                 decoder_output, h, c = self.one_step(decoder_input, h, c)
                 topv, topi = decoder_output.topk(1)
 
+<<<<<<< HEAD
                 # print(decoder_output)
                 # print(topi)
                 # print(topi.item())
                 char_code = topi.detach().cpu()
+=======
+                print(decoder_output)
+                print(topi)
+                print(topi.item())
+                char_code = topi.detach().item()
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
                 if char_code == 27:  # End of Sequence
                     break
                 result.append(char_code)

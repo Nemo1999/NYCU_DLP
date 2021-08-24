@@ -90,7 +90,11 @@ def get_testing_pairs():
         (0,2),
         (3,0),
         (2,0),
+<<<<<<< HEAD
         (2,3),
+=======
+        (2,4),
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         (2,1)
     ]
     for l in lines:

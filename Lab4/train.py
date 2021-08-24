@@ -141,10 +141,17 @@ def train_with_hp(hp):
                     opt_dec,
                     kld_next,
                     teacher_next,
+<<<<<<< HEAD
                     max_samples=None)
         reg_loss, rec_loss, total_loss = res
         h['reg_loss'].append(reg_loss.item())
         h['rec_loss'].append(rec_loss.item())
+=======
+                    max_samples=50)
+        reg_loss, rec_loss, total_loss = res
+        h['reg_loss'].append(reg_loss)
+        h['rec_loss'].append(rec_loss)
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
         # evaluation
         res = test(dl_test, enc, dec)
@@ -181,9 +188,12 @@ def train(dl_train,
           kld_w,
           teacher_w,
           max_samples=None):
+<<<<<<< HEAD
     # set models to training mode
     enc.train()
     dec.train()
+=======
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
     if max_samples is not None:
         dl_train = islice(dl_train, 0, max_samples)
@@ -228,7 +238,10 @@ def train(dl_train,
 def test(dl_test, enc, dec):
     size = len(dl_test)
 
+<<<<<<< HEAD
     # set models to eval mode
+=======
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     enc.eval()
     dec.eval()
 
@@ -257,7 +270,10 @@ def test(dl_test, enc, dec):
         for i in range(100):
             # generate gaussian noise in latent space
             noise = torch.randn(1, 1, enc.latent_size)
+<<<<<<< HEAD
             noise = noise.to(device)
+=======
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             words.append([])
             for j in range(4):
                 t = torch.tensor([[[j]]], device=device)
@@ -274,6 +290,7 @@ def test(dl_test, enc, dec):
 if __name__ == '__main__':
 
     hp = {
+<<<<<<< HEAD
         'kld_w': [0.1, 0.005, 0.4, 20], # start, step, end, turning epoch
         'kld_pat': 'monotonic',  # 'cyclical'
         'teacher_w': [1.0, -0.02, 0.5, 100],
@@ -288,6 +305,11 @@ if __name__ == '__main__':
         'kld_w': [0.1, 0.03, 0.4, 20], # start, step, end, turning epoch
         'kld_pat': 'cyclical',  # 'cyclical'
         'teacher_w': [1.0, -0.02, 0.5, 100],
+=======
+        'kld_w': [0.1, 0.05, 0.4, 20], # start, step, end, turning epoch
+        'kld_pat': 'monotonic',  # 'cyclical'
+        'teacher_w': [1.0, -0.05, 0.5, 100],
+>>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         'lr':  0.01,
         'latent_size': 128,
         'total_epochs': 150
