@@ -80,7 +80,7 @@ if __name__ == '__main__':
     acc = plot_confusion_matrix(hp)
     print(f"accuracy for {hp['model']}_pretrain={hp['pretrain']} = {acc}")
 
-
+"""
     hp = {
         'model':'ResNet18', # or  'ResNet50'
         'optimizer':'sgd',
@@ -123,3 +123,4 @@ if __name__ == '__main__':
 
     acc = plot_confusion_matrix(hp)
     print(f"accuracy for {hp['model']}_pretrain={hp['pretrain']} = {acc}")
+"""

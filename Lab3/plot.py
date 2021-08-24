@@ -16,8 +16,14 @@ def plot_learning_curves(hp):
     pretrain = ['pretrain', 'no-pretrain']
     for p, tf in zip(pretrain,[True,False]):
         hp['pretrain']=tf
-        assert search_checkpoint(hp['epochs']-1,hp), "training process not finished"
-        _, _, history[p] = load_checkpoint(hp['epochs']-1,hp)
+        ep = 0
+        assert search_checkpoint(ep,hp), "training process not finished"
+        while(True):
+            if search_checkpoint(ep+1,hp):
+                ep +=1
+            else:
+                break
+        _, _, history[p] = load_checkpoint(ep,hp)
     
         
     plt.figure(figsize=(10,8))
@@ -65,7 +71,7 @@ if __name__ == '__main__':
         'pretrain':True,
         'feature_extracting':False,
         'bs':4,
-        'epochs':5
+        'epochs':10
     }
 
-    plot_learning_curves(hp)
+    #plot_learning_curves(hp)

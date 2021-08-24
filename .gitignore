@@ -1,1 +1,10 @@
 __pycache__/*
+Lab5/images/*
+Lab5/__pycache__/*
+Lab5/results/*
+Lab5/checkpoints/*
+/Lab5/*.png
+/Lab4/checkpoints/
+Lab4/__pytcache__/*
+/Lab4/__pycache__/get_device.cpython-37.pyc
+/Lab4/__pycache__/model.cpython-37.pyc

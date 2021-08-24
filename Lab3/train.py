@@ -70,7 +70,7 @@ def test(dataloader, model, loss_fn, device):
 
     # turn model into eval mode
     model.eval()
-    
+
     test_loss, correct = 0,0
     with torch.no_grad():
         for X, y in progressBar(dataloader,prefix='testing',decimals=2):
@@ -80,7 +80,7 @@ def test(dataloader, model, loss_fn, device):
             #print(pred.dtype)
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-            
+
             sys.stdout.flush()
     test_loss /= num_batches
     correct /= size
@@ -115,7 +115,7 @@ def load_checkpoint(epoch,hp,model=None,optimizer=None):
     return  model, optimizer, ckpt['history']
 
 def train_with_hp(hp,save_result=True):
-   
+
     # get dataloader
     train_dl, test_dl = get_loader(hp)
     # get device
@@ -143,12 +143,12 @@ def train_with_hp(hp,save_result=True):
                 for k in history:
                     print(f'{k}: {history[k]}')
             continue
-        
+
         print(f"Epoch {t}------------------------------------ ")
         train_acc, train_loss = train(train_dl, model, loss_fn, optimizer,device)
         history['train_acc'].append(train_acc)
         history['train_loss'].append(train_loss)
-        print(f"train_acc: {train_acc:<5.4f}")        
+        print(f"train_acc: {train_acc:<5.4f}")
 
         test_acc, test_loss = test(test_dl, model, loss_fn, device)
         history['test_acc'].append(test_acc)
@@ -165,7 +165,7 @@ def train_with_hp(hp,save_result=True):
 
 
 if __name__ == '__main__':
-    
+
     hp = {
         'model':'ResNet18', # or  'ResNet50'
         'optimizer':'sgd',
@@ -176,7 +176,7 @@ if __name__ == '__main__':
         'epochs':10
     }
     model, hist = train_with_hp(hp,save_result=True)
-    
+
     hp = {
         'model':'ResNet18', # or  'ResNet50'
         'optimizer':'sgd',
@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
     model, hist = train_with_hp(hp,save_result=True)
 
-    
+
     hp = {
         'model':'ResNet50', # or  'ResNet50'
         'optimizer':'sgd',
@@ -197,7 +197,7 @@ if __name__ == '__main__':
         'pretrain':True,
         'feature_extracting':False,
         'bs':4,
-        'epochs':5
+        'epochs':10
     }
 
     model, hist = train_with_hp(hp,save_result=True)
@@ -212,7 +212,7 @@ if __name__ == '__main__':
         'epochs':5
     }
     model, hist = train_with_hp(hp,save_result=True)
-    
+
     #---------------------------------------------------
 
     #feature_extraction
@@ -226,7 +226,7 @@ if __name__ == '__main__':
         'epochs':10
     }
     model, hist = train_with_hp(hp,save_result=True)
-    
+
     hp = {
         'model':'ResNet50', # or  'ResNet50'
         'optimizer':'sgd',
@@ -238,4 +238,3 @@ if __name__ == '__main__':
     }
 
     model, hist = train_with_hp(hp,save_result=True)
-
