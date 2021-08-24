@@ -8,7 +8,7 @@ import numpy as np
 from get_device import device
 from torchvision.utils import save_image
 
-<<<<<<< HEAD
+
 def label_2_text(l, root_folder='/home/nemo/Labs/Lab5'):
     obj = json.load(open(os.path.join(root_folder, 'objects.json')))
     obj_reverse = dict()
@@ -20,8 +20,8 @@ def label_2_text(l, root_folder='/home/nemo/Labs/Lab5'):
         text.append(obj_reverse[e])
     return str(text)
 
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
+
 def get_iCLEVR_data(root_folder,mode):
     if mode == 'train':
         data = json.load(open(os.path.join(root_folder,'train.json')))
@@ -87,11 +87,11 @@ class ICLEVRLoader(data.Dataset):
 def get_dataloader(mode, root_folder='/home/nemo/Labs/Lab5', batch_size=4):
     if mode == 'train':
         dataset = ICLEVRLoader(root_folder, mode)
-<<<<<<< HEAD
-        return data.DataLoader(dataset, batch_size, shuffle=True, num_workers=8, )
-=======
-        return data.DataLoader(dataset, batch_size, shuffle=True, num_workers=4)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
+        return data.DataLoader(dataset, batch_size, shuffle=True, num_workers=8)
+
+
+
     else:
         dataset = ICLEVRLoader(root_folder, mode)
         return data.DataLoader(dataset, batch_size, shuffle=False)

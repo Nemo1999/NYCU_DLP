@@ -1,10 +1,8 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
-<<<<<<< HEAD
 from dataset import label_2_text
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
 
 '''===============================================================
 1. Title:
@@ -66,15 +64,11 @@ class evaluation_model():
             #your image shape should be (batch, 3, 64, 64)
             out = self.resnet18(images)
             if log:
-<<<<<<< HEAD
                 for o, l in zip(out, labels):
                     k = int(l.sum().item())
                     outv, outi = o.topk(k)
                     lv, li = l.topk(k)
                     print(f'eval thinks: {label_2_text(outi)}')
                     print(f'real labels: {label_2_text(li)}')
-=======
-                print(f'classifier out: {out}')
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             acc = self.compute_acc(out.cpu(), labels.cpu())
             return acc

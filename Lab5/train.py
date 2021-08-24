@@ -4,10 +4,8 @@ from torchvision.utils import make_grid, save_image
 from get_device import device
 from evaluator import evaluation_model
 from dataset import get_dataloader, unnormalize
-<<<<<<< HEAD
 from torch.optim.lr_scheduler import StepLR
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
 from model import Generator, Discriminator, weights_init
 from os.path import isfile
 from progressbar import progressBar
@@ -30,11 +28,8 @@ hp = {
     'ndf': 64   # discriminator features
 }
 
-<<<<<<< HEAD
+
 MAX_ITER = 100
-=======
-MAX_ITER = 40
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
 def hp_2_str(hp):
     return f'lr={hp["lr"]}_beta1={hp["beta1"]}_nz={hp["nz"]}_ngf={hp["ngf"]}_ndf={hp["ndf"]}_{hp["name"]}'
@@ -48,17 +43,12 @@ def save_checkpoint(hp, ckpt):
     name = hp_2_str(hp)
     path = 'checkpoints/'+hp_2_str(hp)+'_ckpt.pth'
     torch.save(ckpt, path)
-<<<<<<< HEAD
+
     # print(f'checkpoint is save at {path}')
 
 def load_checkpoint(hp, load_type='latest',
                     netG=None, netD=None, optG=None, optD=None, schG=None, schD=None):
-=======
-    print(f'checkpoint is save at {path}')
 
-def load_checkpoint(hp, load_type='latest',
-                    netG=None, netD=None, optG=None, optD=None):
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     name = hp_2_str(hp)
     path = 'checkpoints/'+hp_2_str(hp)+'_ckpt.pth'
     ckpt = torch.load(path)
@@ -70,7 +60,6 @@ def load_checkpoint(hp, load_type='latest',
         optG.load_state_dict(ckpt[load_type]['optG'])
     if optD:
         optD.load_state_dict(ckpt[load_type]['optD'])
-<<<<<<< HEAD
     if schG:
         schG.load_state_dict(ckpt[load_type]['schG'])
     if schD:
@@ -78,16 +67,10 @@ def load_checkpoint(hp, load_type='latest',
     return ckpt
 
 def pack_state_dicts(netG, netD, optG, optD, schG=None, schD=None):
-=======
-    return ckpt
-
-def pack_state_dicts(netG, netD, optG, optD):
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     state = {
         'netG': netG.state_dict(),
         'netD': netD.state_dict(),
         'optG': optG.state_dict(),
-<<<<<<< HEAD
         'optD': optD.state_dict(),
         'schG': None,
         'schD': None
@@ -100,14 +83,6 @@ def pack_state_dicts(netG, netD, optG, optD):
 
 def train_with_hp(hp):
     dl_train = get_dataloader('train', batch_size=64)
-=======
-        'optD': optD.state_dict()
-    }
-    return copy.deepcopy(state)
-
-def train_with_hp(hp):
-    dl_train = get_dataloader('train', batch_size=32)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     dl_test = get_dataloader('eval', batch_size=16)
 
     nz = hp["nz"]
@@ -122,7 +97,6 @@ def train_with_hp(hp):
     netD.apply(weights_init)
 
     optG = optim.Adam(netG.parameters(), lr=lr, betas=(beta1, 0.999))
-<<<<<<< HEAD
     optD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
     if 'sch' in hp and hp['sch']:
         # scheduler = ReduceLROnPlateau(optimizerD, factor=0.5, patience=2)
@@ -131,18 +105,13 @@ def train_with_hp(hp):
     else:
         schG = None
         schD = None
-=======
-    optD = optim.Adam(netD.parameters(), lr=lr/4, betas=(beta1, 0.999))
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
     ev = evaluation_model()
 
     if search_checkpoint(hp):
-<<<<<<< HEAD
+
         ckpt = load_checkpoint(hp, 'latest', netG, netD, optG, optD, schG, schD)
-=======
-        ckpt = load_checkpoint(hp, 'latest', netG, netD, optG, optD)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
         history = ckpt['history']
     else:
         history = {
@@ -156,13 +125,8 @@ def train_with_hp(hp):
             'fake_l2': []
         }
         ckpt = {
-<<<<<<< HEAD
             'best': pack_state_dicts(netG, netD, optG, optD, schG, schD),
             'latest': pack_state_dicts(netG, netD, optG, optD, schG, schD),
-=======
-            'best': pack_state_dicts(netG, netD, optG, optD),
-            'latest': pack_state_dicts(netG, netD, optG, optD),
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
             'history': history
         }
     h = history
@@ -172,22 +136,14 @@ def train_with_hp(hp):
 
     for ep_cnt in range(h['ep_cnt']+1 , MAX_ITER):
         h['ep_cnt'] = ep_cnt
-<<<<<<< HEAD
-
-=======
-        print(f'training epoch {ep_cnt:5>}')
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         # train for one epoch
         G_loss, D_loss, real_l, fake_l1, fake_l2 = train(dl_train,
                                                          netG,
                                                          netD,
                                                          optG,
                                                          optD,
-<<<<<<< HEAD
                                                          schG,
                                                          schD
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
                                                          )
         h['G_losses'].append(D_loss)
         h['D_losses'].append(G_loss)
@@ -207,7 +163,6 @@ def train_with_hp(hp):
             ckpt['best'] = pack_state_dicts(netG,
                                             netD,
                                             optG,
-<<<<<<< HEAD
                                             optD,
                                             schG,
                                             schD
@@ -220,29 +175,14 @@ def train_with_hp(hp):
                                           optD,
                                           schG,
                                           schD
-=======
-                                            optD
-                                            )
-
-        print(f'score={score:6.2f}, best={h["best_score"]:6.2f}, real_l={real_l:6.2f}, fake_l1={fake_l1:6.2f}, fake_l2={fake_l2:6.2f}')
-        ckpt['latest'] = pack_state_dicts(netG,
-                                          netD,
-                                          optG,
-                                          optD
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
                                           )
 
         # save checkpoints:
         save_checkpoint(hp, ckpt)
-<<<<<<< HEAD
 
 
         # plot history
         plot_losses(hp, h)
-=======
-    # plot history
-    plot_losses(hp, h)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
     # plot generated images
     load_checkpoint(hp, load_type='best', netG=netG)
@@ -252,12 +192,8 @@ def train_with_hp(hp):
 
 criterion = torch.nn.BCELoss()
 
-<<<<<<< HEAD
-def train(dl_train, netG, netD, optG, optD, schG=None, schD=None):
-=======
-def train(dl_train, netG, netD, optG, optD):
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
+def train(dl_train, netG, netD, optG, optD, schG=None, schD=None):
     real_label = 0.9
     fake_label = 0
 
@@ -349,12 +285,9 @@ def train(dl_train, netG, netD, optG, optD):
         #     img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
 
         # iters += 1
-<<<<<<< HEAD
     if schG and schD:
         schG.step()
         schD.step()
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     return (np.mean(G_losses),
             np.mean(D_losses),
             np.mean(real_labels),
@@ -412,11 +345,8 @@ if __name__ == '__main__':
         'ndf': 64   # discriminator features
     }
 
-<<<<<<< HEAD
+
     # train_with_hp(hp)
-=======
-    train_with_hp(hp)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
 
     hp = {
         'lr': 0.002,
@@ -427,11 +357,9 @@ if __name__ == '__main__':
         'ndf': 64   # discriminator features
     }
 
-<<<<<<< HEAD
+
     # train_with_hp(hp)
-=======
-    train_with_hp(hp)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
 
     hp = {
         'lr': 0.002,
@@ -442,11 +370,8 @@ if __name__ == '__main__':
         'ndf': 64   # discriminator features
     }
 
-<<<<<<< HEAD
     # train_with_hp(hp)
-=======
-    train_with_hp(hp)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
 
     hp = {
         'lr': 0.002,
@@ -456,7 +381,6 @@ if __name__ == '__main__':
         'ngf': 64,  # generator features
         'ndf': 64   # discriminator features
     }
-<<<<<<< HEAD
     # train_with_hp(hp)
 
     hp = {
@@ -620,6 +544,4 @@ if __name__ == '__main__':
         'ndf': 64,   # discriminator features
         'sch': True
     }
-=======
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
     train_with_hp(hp)
