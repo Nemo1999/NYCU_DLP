@@ -90,24 +90,19 @@ def get_testing_pairs():
         (0,2),
         (3,0),
         (2,0),
-<<<<<<< HEAD
         (2,3),
-=======
-        (2,4),
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
         (2,1)
     ]
-    for l in lines:
-        for (t1,t2) in validation_terms:
-            w1, w2 = l.split(' ')
-            w1, w2 = list(map(ch2ord,w1)), list(map(ch2ord,w2))
-            w1.append(26) # append EOS symbol
-            w2.append(26) # append EOS symbol
-            w1 = torch.tensor(w1,dtype=torch.long).view(-1,1)
-            w2 = torch.tensor(w2,dtype=torch.long).view(-1,1)
-            t1 = torch.tensor([t1],dtype=torch.long).view(-1,1)
-            t2 = torch.tensor([t2],dtype=torch.long).view(-1,1)
-            pairs.append(((w1,t1),(w2,t2)))
+    for l, (t1, t2)in zip(lines, validation_terms):
+        w1, w2 = l.split(' ')
+        w1, w2 = list(map(ch2ord,w1)), list(map(ch2ord,w2))
+        w1.append(26) # append EOS symbol
+        w2.append(26) # append EOS symbol
+        w1 = torch.tensor(w1,dtype=torch.long).view(-1,1)
+        w2 = torch.tensor(w2,dtype=torch.long).view(-1,1)
+        t1 = torch.tensor([t1],dtype=torch.long).view(-1,1)
+        t2 = torch.tensor([t2],dtype=torch.long).view(-1,1)
+        pairs.append(((w1,t1),(w2,t2)))
     return pairs
 
 def nums2word(nums):

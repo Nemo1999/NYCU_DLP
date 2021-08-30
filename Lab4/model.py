@@ -17,13 +17,16 @@ class EncoderRNN(nn.Module):
         self.embedding_cond = nn.Embedding(num_cond, tense_size)
         #  add hidden size for  concatenated conditioning tense value
         self.lstm = nn.LSTM(latent_size, latent_size*2 + tense_size)
-        self.fc_mu = nn.Linear(latent_size*2 + tense_size, latent_size)
-        self.fc_var = nn.Linear(latent_size*2 + tense_size, latent_size)
+        self.fc_mu_h = nn.Linear(latent_size*2 + tense_size, latent_size)
+        self.fc_var_h = nn.Linear(latent_size*2 + tense_size, latent_size)
+        self.fc_mu_c = nn.Linear(latent_size*2 + tense_size, latent_size)
+        self.fc_var_c = nn.Linear(latent_size*2 + tense_size, latent_size)
 
     def reparametrize(self, mu, logvar):
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
         return eps*std + mu
+        #return mu
 
     def forward(self, mode, input, hidden, cell, condition):
         # `mode` can be either 'train' or 'eval'
@@ -47,17 +50,23 @@ class EncoderRNN(nn.Module):
         output, (hidden_n, cell_n) = self.lstm(embedded_input,
                                                (hidden_cond, cell_cond))
         output = output[-1, :, :]
-        mu = self.fc_mu(output)
-        log_var = self.fc_var(output)
+        mu_h = self.fc_mu_h(output)
+        log_var_h = self.fc_var_h(output)
 
-        z = self.reparametrize(mu, log_var)
+        mu_c = self.fc_mu_c(output)
+        log_var_c = self.fc_var_c(output)
+
+        zh = self.reparametrize(mu_h, log_var_h)
+        zc = self.reparametrize(mu_c, log_var_c)
 
         if mode == 'train':
-            kl_loss = self.regularization_loss(mu, log_var)
-            return kl_loss, z
+            kl_loss_h = self.regularization_loss(mu_h, log_var_h)
+            kl_loss_c = self.regularization_loss(mu_c, log_var_c)
+            kl_loss = kl_loss_h + kl_loss_c
+            return kl_loss, zh, zc
         else:
             assert mode == 'eval', 'unknown mode for encoder'
-            return z
+            return zh, zc
     def regularization_loss(self, mu, log_var):
         kl_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu**2 - log_var.exp(), dim=1), dim=0)
         return kl_loss
@@ -77,11 +86,9 @@ class DecoderRNN(nn.Module):
         self.tense_size = tense_size
 
         self.embedding_in = nn.Embedding(num_char, num_char)
-<<<<<<< HEAD
+
         self.lstm = nn.LSTM(num_char, latent_size + tense_size)
-=======
-        self.lstm = nn.LSTM(num_char , latent_size + tense_size)
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
         self.out = nn.Sequential(
             nn.Linear(latent_size + tense_size, num_char),
             nn.LogSoftmax(dim=1)
@@ -117,11 +124,9 @@ class DecoderRNN(nn.Module):
         # condition should have shape (1, 1, 1)
         # target should have shape (seq_len, 1, 1)
         # and target should be append with EOS token ('$')
-<<<<<<< HEAD
-        # print(condition)
-=======
 
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+        # print(condition)
+
         embedded_cond = self.embedding_cond(condition)
         embedded_cond = embedded_cond.view(1, 1, -1)
 
@@ -154,7 +159,7 @@ class DecoderRNN(nn.Module):
                                               target[di].view(1))
                     topv, topi = decoder_output.topk(1)
                     decoder_input = topi.detach().view(1, 1, 1)
-
+            rc_loss /= target_length
             return rc_loss
         else:
             assert mode == 'eval', "unknown mode for decoder"
@@ -170,17 +175,12 @@ class DecoderRNN(nn.Module):
                 decoder_output, h, c = self.one_step(decoder_input, h, c)
                 topv, topi = decoder_output.topk(1)
 
-<<<<<<< HEAD
+
                 # print(decoder_output)
                 # print(topi)
                 # print(topi.item())
                 char_code = topi.detach().cpu()
-=======
-                print(decoder_output)
-                print(topi)
-                print(topi.item())
-                char_code = topi.detach().item()
->>>>>>> ccfb4c8982e1c26908e84288185ac7131ac240aa
+
                 if char_code == 27:  # End of Sequence
                     break
                 result.append(char_code)
